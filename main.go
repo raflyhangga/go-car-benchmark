@@ -43,7 +43,7 @@ func main() {
 		return
 	}
 
-	var numSlots [8]int;
+	var numSlots [9]int;
 	numSlots[0] = 1000
 	numSlots[1] = 5000
 	numSlots[2] = 8000
@@ -52,6 +52,7 @@ func main() {
 	numSlots[5] = 30000
 	numSlots[6] = 40000
 	numSlots[7] = 50000
+	numSlots[8] = 900
 
 
 	for _, value := range numSlots {
