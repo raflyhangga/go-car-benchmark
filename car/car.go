@@ -75,6 +75,7 @@ type CAR struct {
 	b1, b2 *lru
 	full   bool
 	slotNo int
+	missCount, reqCount int
 
 	cbLoadValue    LoadValue
 	cbReplaceValue ReplaceValue
@@ -90,7 +91,13 @@ func NewCAR(n int) *CAR {
 		b1: newLru(),
 		t2: newClock(),
 		b2: newLru(),
+		reqCount: 0,
+		missCount: 0,
 	}
+}
+
+func (c *CAR) GetCount() (int,int) {
+	return c.reqCount, c.missCount
 }
 
 // SetLoadValue sets the callback function for loading a value into the cache.
@@ -149,10 +156,13 @@ func (c *CAR) hit(key interface{}) (value interface{}, ok bool) {
 func (c *CAR) miss(key interface{}) interface{} {
 	inB1, inB2 := c.b1.exist(key), c.b2.exist(key)
 	var s *slot
+	c.missCount += 1
 
 	// cache full -> replace an entry from cache
 	sizeT1, sizeT2 := c.t1.size(), c.t2.size()
+	// fmt.Printf("[DEBUG] Size T1: %d T2: %d c:%d\n",sizeT1,sizeT2,c.c)
 	if sizeT1+sizeT2 == c.c {
+		// fmt.Println("[DEBUG] Cache Full, Replace")
 		c.full = true
 		if sizeT1 >= max(1, c.p) {
 			s = c.replaceT1()
@@ -205,16 +215,19 @@ func (c *CAR) miss(key interface{}) interface{} {
 		c.t1.insertTail(key, s)
 
 	}
+
 	return s.value
 }
 
 // Load returns the cache value of the given cache key.
 // Load is safe for concurrent use by multiple goroutines without additional locking or coordination.
 func (c *CAR) Load(key interface{}) interface{} {
-
+	// fmt.Printf("[DEBUG] Item has size of %.2f byte\n", float64(unsafe.Sizeof(key)))
+	c.reqCount += 1
 	// cache hit
 	c.mu.RLock()
 	if value, ok := c.hit(key); ok {
+		// fmt.Println("[DEBUG] Cache hit")
 		c.mu.RUnlock()
 		return value
 	}
@@ -226,6 +239,7 @@ func (c *CAR) Load(key interface{}) interface{} {
 		c.mu.Unlock()
 		return value
 	}
+	// fmt.Println("[DEBUG] Cache miss")
 	value := c.miss(key)
 	c.mu.Unlock()
 	return value
