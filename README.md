@@ -1,14 +1,11 @@
 # go-car
 Golang CAR cache
 
-[![GoDoc](https://godoc.org/github.com/d024441/go-car/car?status.png)](https://godoc.org/github.com/d024441/go-car/car)
+This repository is a fork from [stfnmllr's Go Car](https://github.com/stfnmllr/go-car). With some additional code to record the algorithm's performance.
 
-Golang CAR cache is a cache implementation using the cache replacement policy:
+Goal of this repository is to compare libCacheSim's CAR (Clock with Adaptive Replacement) implementation with Go Car's implementation.
 
-* Clock with adaptive replacement (CAR)
-
-See [https://www.cse.iitd.ernet.in/~sbansal/pubs/fast04.pdf](https://www.cse.iitd.ernet.in/~sbansal/pubs/fast04.pdf) for motivation, definition
-and contribution to all aspects of this implementation.
-
-See [https://en.wikipedia.org/wiki/Cache_replacement_policies](https://en.wikipedia.org/wiki/Cache_replacement_policies) for a general discussion
-of cache replacement policies.
+To run the benchmark:
+```
+go run main.go
+```
